@@ -3,11 +3,9 @@ from typing import Any
 
 
 class DataProcessor(ABC):
-    def __init__(self):
-        self._data: list[str] = []
-
-    def get_data(self) -> Any:
-        return self._data
+    def __init__(self) -> None:
+        self.data: list[str] = []
+        self.rank = 0
     
     @abstractmethod
     def validate(self, data: Any) -> bool:
@@ -18,7 +16,9 @@ class DataProcessor(ABC):
         pass
 
     def output(self) -> tuple[int, str]:
-        return self.get_data().pop(0)
+        result = (self.rank, self.data.pop(0))
+        self.rank += 1 
+        return result
 
 
 class NumericProcessor(DataProcessor):
@@ -32,22 +32,39 @@ class NumericProcessor(DataProcessor):
             return True
         return False
 
-    def ingest(self, data: int | float | list[int | float]):
+    def ingest(self, data: int | float | list[int | float]) -> None:
         if not self.validate(data):
             raise TypeError("Got exception: Improper numeric data")
         if not isinstance(data, (list)):
             data = [data]
         for val in data:
-            self.get_data().append(str(val))
+            self.data.append(str(val))
             
 
 
 class TextProcessor(DataProcessor):
-    pass
+    def validate(self, data: Any) -> bool:
+        if isinstance(data, (str)):
+            return True
+        elif isinstance(data, (list)):
+            for val in data:
+                if not isinstance(val, (str)):
+                    return False
+            return True
+        return False
+    
+    def ingest(self, data: str | list[str]) -> None:
+        if not self.validate(data):
+            raise TypeError("Got exception: Improper numeric data")
+        if not isinstance(data, (list)):
+            data = [data]
+        for val in data:
+            self.data.append(str(val))
 
 
 class LogProcessor(DataProcessor):
-    pass
+    def validate(self, data: Any) -> bool:
+        pass
 
 
 def main() -> None:
@@ -66,7 +83,7 @@ def main() -> None:
     num_proc.ingest([1, 2, 3, 4, 5])
     print(" Extracting 3 values...")
     for val in range(3):
-        print(f" Numeric value {val}: {num_proc.output()}")
+        print(f" Numeric value {val}: {num_proc.output()[1]}")
 
     print("\nTesting Text processor...")
 
