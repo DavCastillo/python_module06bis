@@ -4,7 +4,7 @@ from typing import Any
 
 class DataProcessor(ABC):
     def __init__(self) -> None:
-        self.data: list[str] = []
+        self.data: list[tuple[int, str]] = []
         self.rank = 0
 
     @abstractmethod
@@ -16,8 +16,7 @@ class DataProcessor(ABC):
         pass
 
     def output(self) -> tuple[int, str]:
-        result = (self.rank, self.data.pop(0))
-        self.rank += 1
+        result = self.data.pop(0)
         return result
 
 
@@ -38,7 +37,8 @@ class NumericProcessor(DataProcessor):
         if not isinstance(data, (list)):
             data = [data]
         for val in data:
-            self.data.append(str(val))
+            self.data.append((self.rank, str(val)))
+            self.rank += 1
 
 
 class TextProcessor(DataProcessor):
@@ -58,7 +58,8 @@ class TextProcessor(DataProcessor):
         if not isinstance(data, (list)):
             data = [data]
         for val in data:
-            self.data.append(str(val))
+            self.data.append((self.rank, str(val)))
+            self.rank += 1
 
 
 class LogProcessor(DataProcessor):
@@ -83,7 +84,9 @@ class LogProcessor(DataProcessor):
         if not isinstance(data, list):
             data = [data]
         for val in data:
-            self.data.append(f"{val['log_level']}: {val['log_message']}")
+            self.data.append((self.rank,
+                              f"{val['log_level']}: {val['log_message']}"))
+            self.rank += 1
 
 
 def main() -> None:
@@ -102,7 +105,8 @@ def main() -> None:
     num_proc.ingest([1, 2, 3, 4, 5])
     print(" Extracting 3 values...")
     for _ in range(3):
-        print(f" Numeric value {num_proc.rank}: {num_proc.output()[1]}")
+        values = num_proc.output()
+        print(f" Numeric value {values[0]}: {values[1]}")
 
     print("\nTesting Text processor...")
     txt_proc = TextProcessor()
@@ -110,7 +114,7 @@ def main() -> None:
     print(" Processing data: ['Hello', 'Nexus', 'World']")
     txt_proc.ingest(['Hello', 'Nexus', 'World'])
     print(" Extracting 1 value...")
-    print(f" Text value {txt_proc.rank}: {txt_proc.output()[1]}")
+    print(f" Text value {txt_proc.data[0][0]}: {txt_proc.output()[1]}")
 
     print("\nTesting Log Processor...")
     log_proc = LogProcessor()
