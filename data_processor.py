@@ -6,7 +6,7 @@ class DataProcessor(ABC):
     def __init__(self) -> None:
         self.data: list[str] = []
         self.rank = 0
-    
+
     @abstractmethod
     def validate(self, data: Any) -> bool:
         pass
@@ -17,7 +17,7 @@ class DataProcessor(ABC):
 
     def output(self) -> tuple[int, str]:
         result = (self.rank, self.data.pop(0))
-        self.rank += 1 
+        self.rank += 1
         return result
 
 
@@ -39,7 +39,6 @@ class NumericProcessor(DataProcessor):
             data = [data]
         for val in data:
             self.data.append(str(val))
-            
 
 
 class TextProcessor(DataProcessor):
@@ -52,10 +51,10 @@ class TextProcessor(DataProcessor):
                     return False
             return True
         return False
-    
+
     def ingest(self, data: str | list[str]) -> None:
         if not self.validate(data):
-            raise TypeError("Got exception: Improper numeric data")
+            raise TypeError("Got exception: Improper text data")
         if not isinstance(data, (list)):
             data = [data]
         for val in data:
@@ -64,7 +63,27 @@ class TextProcessor(DataProcessor):
 
 class LogProcessor(DataProcessor):
     def validate(self, data: Any) -> bool:
-        pass
+        if isinstance(data, dict):
+            for key, val in data:
+                if not (isinstance(key, str) and isinstance(val, str)):
+                    return False
+            return True
+        elif isinstance(data, list):
+            if all(isinstance(item, dict) for item in data):
+                for chk_dict in data:
+                    for key, val in chk_dict.items():
+                        if not (isinstance(key, str) and isinstance(val, str)):
+                            return False
+                return True
+        return False
+
+    def ingest(self, data: dict[str, str] | list[dict[str, str]]) -> None:
+        if not self.validate(data):
+            raise TypeError("Got exception: Improper format data")
+        if not isinstance(data, list):
+            data = [data]
+        for val in data:
+            self.data.append(f"{val['log_level']}: {val['log_message']}")
 
 
 def main() -> None:
@@ -82,11 +101,28 @@ def main() -> None:
     print(" Processing data: [1, 2, 3, 4, 5]")
     num_proc.ingest([1, 2, 3, 4, 5])
     print(" Extracting 3 values...")
-    for val in range(3):
-        print(f" Numeric value {val}: {num_proc.output()[1]}")
+    for _ in range(3):
+        print(f" Numeric value {num_proc.rank}: {num_proc.output()[1]}")
 
     print("\nTesting Text processor...")
+    txt_proc = TextProcessor()
+    print(" Trying to validate input '42':", txt_proc.validate(42))
+    print(" Processing data: ['Hello', 'Nexus', 'World']")
+    txt_proc.ingest(['Hello', 'Nexus', 'World'])
+    print(" Extracting 1 value...")
+    print(f" Text value {txt_proc.rank}: {txt_proc.output()[1]}")
 
+    print("\nTesting Log Processor...")
+    log_proc = LogProcessor()
+    print(" Trying to validate 'Hello':", log_proc.validate('Hello'))
+    lst_dict = [{'log_level': 'NOTICE', 'log_message': 'Connection to server'},
+                {'log_level': 'ERROR', 'log_message': 'Unauthorized access!!'}]
+    print(f" Processing data: {lst_dict}")
+    log_proc.ingest(lst_dict)
+    print(" Extracting 2 values...")
+    for _ in range(2):
+        log_ent = log_proc.output()
+        print(f" Log entry {log_ent[0]}: {log_ent[1]}")
 
 
 if __name__ == "__main__":
