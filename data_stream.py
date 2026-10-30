@@ -89,9 +89,53 @@ class LogProcessor(DataProcessor):
             self.rank += 1
 
 
+class DataProcessor:
+    def __init__(self) -> None:
+        self.processor: list[DataProcessor] = []
+
+    def register_processor(self, proc: DataProcessor) -> None:
+        if isinstance(proc, NumericProcessor):
+            self.processor.append(proc)
+        elif isinstance(proc, TextProcessor):
+            self.processor.append(proc)
+        elif isinstance(proc, LogProcessor):
+            self.processor.append(proc)
+
+    def process_stream(self, stream: list[Any]) -> None:
+        for proc in self.processor:
+            if proc and proc.va
+        #for elem in stream:
+         #   if self.processor[0].validate(elem):
+          #      self.processor[0].ingest(elem)
+           ##    self.processor[1].ingest(elem)
+            #elif self.processor[2].validate(elem):
+             #     self.processor[2].ingest(elem)
+            #else:
+                #print(f"DataStream error - Can't process element in stream: {elem}")
+
+    def print_processors_stats(self) -> None:
+        if not self.processor:
+            print("No processor found, no data")
+        elif isinstance(self.processor[0], NumericProcessor):
+            print(f"Numeric Processor: total {self.processor[0].rank} items processed, remaining {len(self.processor[0].data)} on processor")
+
+
 def main() -> None:
     print("=== Code Nexus - Data Stream ===\n")
 
+    print("Initialize Data Stream...")
+    print("== Data stream statistics ==")
+    stream = DataProcessor()
+    stream.print_processors_stats()
+
+    print("\nRegistering Numeric Processor\n")
+    data_stream = ['Hello world', [3.14, -1, 2.71], [{'log_level': 'WARNING', 'log_message': 'Telnet access! Use ssh instead'}, {'log_level': 'INFO', 'log_message': 'User wil is connected'}], 42, ['Hi', 'five']]
+    stream.register_processor(NumericProcessor())
+    print(f"Send first batch of data on stream: {data_stream}")
+    stream.process_stream(data_stream)
+
+    print("== DataStream statistics ==")
+    stream.print_processors_stats()
 
 if __name__ == "__main__":
     main()
