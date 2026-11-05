@@ -14,15 +14,15 @@ def run_tournament(
     try:
         for i in range(len(participants)):
             for j in range(i + 1, len(participants)):
-                c1, s1 = participants[i]
-                c2, s2 = participants[j]
+                creature1, strat1 = participants[i]
+                creature2, strat2 = participants[j]
                 print("* Battle *")
-                print(c1.describe())
+                print(creature1.describe())
                 print(" vs.")
-                print(c2.describe())
+                print(creature2.describe())
                 print(" now fight!")
-                s1.act(c1)
-                s2.act(c2)
+                strat1.act(creature1)
+                strat2.act(creature2)
     except Exception as e:
         print(f"Battle error, aborting tournament: {e}")
 
