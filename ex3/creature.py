@@ -66,6 +66,6 @@ class Morphagon(Creature, Transform):
 
     def attack(self) -> str:
         if self.transformed:
-            return (f"{self.name} performs a boosted strike!")
+            return (f"{self.name} unleashes a devastating morph strike!")
         else:
             return (f"{self.name} attacks normally.")

@@ -3,20 +3,12 @@ import ex3
 
 def test_factory(factory: ex3.CreatureFactory) -> None:
     print("Testing Factory")
-    if isinstance(factory, ex3.FlameFactory):
-        bs_entity = factory.create_base()
-        ev_entity = factory.create_evolved()
-        print(bs_entity.describe())
-        print(bs_entity.attack())
-        print(ev_entity.describe())
-        print(ev_entity.attack())
-    elif isinstance(factory, ex3.TransformCreatureFactory):
-        bs_entity = factory.create_base()
-        ev_entity = factory.create_evolved()
-        print(bs_entity.describe())
-        print(bs_entity.attack())
-        print(ev_entity.describe())
-        print(ev_entity.attack())
+    bs_entity = factory.create_base()
+    ev_entity = factory.create_evolved()
+    print(bs_entity.describe())
+    print(bs_entity.attack())
+    print(ev_entity.describe())
+    print(ev_entity.attack())
 
 
 def test_battle(fct_1: ex3.CreatureFactory,
@@ -25,9 +17,9 @@ def test_battle(fct_1: ex3.CreatureFactory,
     bs_fct_1 = fct_1.create_base()
     bs_fct_2 = fct_2.create_base()
     print(bs_fct_1.describe())
-    print("\tvs.")
+    print(" vs.")
     print(bs_fct_2.describe())
-    print("\tfight!")
+    print(" fight!")
     print(bs_fct_1.attack())
     print(bs_fct_2.attack())
 
